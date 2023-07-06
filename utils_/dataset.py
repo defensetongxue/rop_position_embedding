@@ -9,7 +9,7 @@ import numpy as np
 
 class ridge_segmentataion_dataset(Dataset):
     def __init__(self, data_path, split):
-        with open(os.path.join(data_path, 'ridge_seg', 'annotations', f'{split}.json'), 'r') as f:
+        with open(os.path.join(data_path, 'ridge',f'{split}.json'), 'r') as f:
             self.annote=json.load(f)
         self.split=split
         self.transforms = transforms.Compose([
@@ -17,12 +17,7 @@ class ridge_segmentataion_dataset(Dataset):
             transforms.RandomVerticalFlip(p=0.5),
             Fix_RandomRotation(),
         ])
-        self.img_transforms=transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.4623, 0.3856, 0.2822],
-                std=[0.2527, 0.1889, 0.1334])])
-
+        
     def __getitem__(self, idx):
         data = self.annote[idx]
 

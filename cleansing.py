@@ -1,6 +1,7 @@
 import json
 import os
 import torch
+from VesselSegModule import generate_vessel_result
 from utils_ import generate_diffusion_heatmap,generate_position_map
 import torchvision.transforms as transforms
 from PIL import Image
@@ -40,9 +41,17 @@ def generate_possion_map(data_path, compress_r):
             mask[mask!=0]=1
             position_save_path=os.path.join(data_path,'position_map_gt',data['image_name'])
             pos_heatmap=generate_position_map(mask,compress_r,save_path=position_save_path)
-            from utils_ import visual_position_map
-            visual_position_map(data['image_path'],pos_heatmap,'./tmp.jpg')
-            raise
+            # from utils_ import visual_position_map
+            # visual_position_map(data['image_path'],pos_heatmap,'./tmp.jpg')
+            # raise
+            vessel_path=os.path.join(data_path,'vessel_seg',data['image_name'].split('.')[0]+'.png')
+            data.update({
+                'vessel_path':vessel_path,
+                'pos_heatmap':position_save_path
+            })
+            annotate.append(data)
+        with open(os.path.join(data_path,'ridge',f'{split}.json'),'w') as f:
+            data_list=json.dump(annotate,f)
 
 
 def parse_json(input_data,label_class=0,image_dict="../autodl-tmp/images"):
@@ -153,6 +162,7 @@ def split_data(data_path, annotations):
     print(f"Train samples: {len(train_annotations)} {train_condition} {train_condition}")
     print(f"Validation samples: {len(val_annotations)} {val_condition} {val_condition}")
     print(f"Test samples: {len(test_annotations)} {test_condition} {test_condition}")
+
 if __name__=='__main__':
     from config import get_config
     args=get_config()
@@ -164,4 +174,7 @@ if __name__=='__main__':
         print(f"generate ridge_coordinate in {os.path.join(args.path_tar,'ridge')}")
     if args.generate_diffusion_mask:
         generate_ridge_diffusion(args.path_tar)
+    if args.generate_vessel:
+        generate_vessel_result(data_path=args.path_tar)
+
     generate_possion_map(args.path_tar,args.posi_compress)

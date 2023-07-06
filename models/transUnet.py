@@ -9,11 +9,12 @@ class ViT(nn.Module):
     def __init__(self, *, image_size, patch_size,  embed_dim, depth, heads, mlp_dim,  channels = 3, dim_head = 12, dropout = 0., emb_dropout = 0.):
         super().__init__()
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
-        num_patches = (image_size // patch_size) ** 2
+        self.patch_length=image_size/patch_size
+        num_patches = self.patch_length ** 2
         patch_dim = channels * patch_size ** 2
-
+        
         self.patch_size = patch_size
-        self.patch_embedding=PatchEmbedding(in_channels=channels,patch_size=patch_size.embeding,embed_dim= embed_dim)
+        self.patch_embedding=PatchEmbedding(in_channels=channels,patch_size=patch_size.embeding,embed_dim= embed_dim )
         self.pos_embedding = nn.Parameter(torch.randn(1, num_patches ,embed_dim))
         self.patch_to_embedding = nn.Linear(patch_dim, embed_dim)
         self.dropout = nn.Dropout(emb_dropout)
@@ -36,7 +37,12 @@ class ViT(nn.Module):
         x = self.transformer(x, mask) # [batch_size, num_patches, embed_dim]
 
 
-        return self.mlp_head(x)
+        x = self.mlp_head(x)
+        print(x.shape)
+        x=x.reshape(-1,self.patch_length,self.patch_length)
+        x=F.sigmoid(x)
+        return x
+    
 class PatchEmbedding(nn.Module):
     def __init__(self, in_channels=3, patch_size=16, embed_dim=768):
         super().__init__()
