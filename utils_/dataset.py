@@ -17,15 +17,15 @@ class ridge_segmentataion_dataset(Dataset):
             transforms.RandomVerticalFlip(p=0.5),
             Fix_RandomRotation(),
         ])
-        
+        gt
     def __getitem__(self, idx):
         data = self.annote[idx]
 
         # Read the image and mask
-        img = Image.open(data['img_path']).convert('RGB')
+        img = Image.open(data['vessel_seg']).convert('RGB')
         gt = Image.open(data['mask_path'])
-        img=transforms.Resize((400,400))(img)
-        gt=transforms.Resize((400,400))(gt)
+        img=transforms.Resize((224,224))(img)
+        gt=torch.load(data['position_save_path'])
         
         if self.split == "train" :
             seed = torch.seed()
@@ -35,8 +35,7 @@ class ridge_segmentataion_dataset(Dataset):
             gt = self.transforms(gt)
         # Transform mask back to 0,1 tensor
         gt = torch.from_numpy(np.array(gt, np.float32, copy=False))
-        gt[gt != 0] = 1.
-        img = self.img_transforms(img)
+        img = transforms.ToTensor()(img)
         
         return img, gt.squeeze(),data['class']
 
