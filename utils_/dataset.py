@@ -7,7 +7,7 @@ import json
 from PIL import Image
 import numpy as np
 
-class ridge_segmentataion_dataset(Dataset):
+class rop_posembed_dataset(Dataset):
     def __init__(self, data_path, split):
         with open(os.path.join(data_path, 'ridge',f'{split}.json'), 'r') as f:
             self.annote=json.load(f)
@@ -17,7 +17,6 @@ class ridge_segmentataion_dataset(Dataset):
             transforms.RandomVerticalFlip(p=0.5),
             Fix_RandomRotation(),
         ])
-        gt
     def __getitem__(self, idx):
         data = self.annote[idx]
 

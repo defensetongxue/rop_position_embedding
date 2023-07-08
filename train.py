@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from config import get_config
 from utils_ import get_instance, train_epoch, val_epoch,get_optimizer,losses
-from utils_ import ridge_segmentataion_dataset as CustomDatset
+from utils_ import rop_posembed_dataset as CustomDatset
 import models
 import os
 # Initialize the folder
