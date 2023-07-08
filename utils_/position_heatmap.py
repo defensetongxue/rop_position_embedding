@@ -3,11 +3,11 @@ import numpy as np
 from scipy.ndimage import convolve
 import cv2
 
-def generate_position_map(ridge_mask,compress_r,save_path=None):
+def generate_position_map(ridge_mask,patch_size,save_path=None):
     w,h=ridge_mask.shape
     assert w==h
-    assert w%compress_r==0
-    kernel = np.ones((compress_r, compress_r))
+    assert w%patch_size==0
+    kernel = np.ones((patch_size, patch_size))
     heatmap_original = convolve(ridge_mask, kernel, mode='constant', cval=0.0)
     heatmap = (heatmap_original - np.min(heatmap_original)) / (np.max(heatmap_original) - np.min(heatmap_original)) * 0.5 + 0.5
     if save_path:

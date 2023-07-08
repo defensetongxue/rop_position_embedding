@@ -63,9 +63,13 @@ def get_config():
                         help='if generate the ridge cooridinate from json src.')
     parser.add_argument('--generate_diffusion_mask', type=bool, default=True,
                         help='if generate the ridge cooridinate from json src.')
+    parser.add_argument('--generate_vessel', type=bool, default=True,
+                        help='if generate the ridge cooridinate from json src.')
     
     # Cleansing
-    parser.add_argument('--posi_compress', type=int, default=16,
+    parser.add_argument('--image_size', type=int, default=256,
+                        help='position heatmap compress resize .')
+    parser.add_argument('--patch_size', type=int, default=16,
                         help='position heatmap compress resize .')
     
     # Model

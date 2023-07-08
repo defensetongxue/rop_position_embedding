@@ -24,7 +24,7 @@ def generate_ridge_diffusion(data_path,):
         with open(os.path.join(data_path,'ridge',f'{split}.json'),'w') as f:
             json.dump(new_data_list,f)
 
-def generate_possion_map(data_path, compress_r):
+def generate_possion_map(data_path, image_size,patch_size):
     # Generate path_image folder
     os.makedirs(os.path.join(data_path,'position_map_gt'),exist_ok=True)
     
@@ -38,12 +38,13 @@ def generate_possion_map(data_path, compress_r):
         annotate=[]
         for  data in data_list:
             mask = Image.open(data['diffusion_mask_path'])
+            mask=mask.resize((image_size,image_size))
             mask[mask!=0]=1
             position_save_path=os.path.join(data_path,'position_map_gt',data['image_name'])
-            pos_heatmap=generate_position_map(mask,compress_r,save_path=position_save_path)
-            # from utils_ import visual_position_map
-            # visual_position_map(data['image_path'],pos_heatmap,'./tmp.jpg')
-            # raise
+            pos_heatmap=generate_position_map(mask,patch_size,save_path=position_save_path)
+            from utils_ import visual_position_map
+            visual_position_map(data['image_path'],pos_heatmap,'./tmp.jpg')
+            raise
             vessel_path=os.path.join(data_path,'vessel_seg',data['image_name'].split('.')[0]+'.png')
             data.update({
                 'vessel_path':vessel_path,
@@ -177,4 +178,4 @@ if __name__=='__main__':
     if args.generate_vessel:
         generate_vessel_result(data_path=args.path_tar)
 
-    generate_possion_map(args.path_tar,args.posi_compress)
+    generate_possion_map(args.path_tar,args.image_size,args.patch_size)
