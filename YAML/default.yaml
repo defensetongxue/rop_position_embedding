@@ -2,7 +2,7 @@ GPUS: (0,)
 WORKERS: 15
 Loss: BCELoss
 MODEL:
-  NAME: 'FR_UNet'
+  NAME: 'ViT'
   PRETRAINED: ''
 TRAIN:
   BATCH_SIZE_PER_GPU: 9
