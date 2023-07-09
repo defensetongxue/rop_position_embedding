@@ -18,7 +18,15 @@ os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model = get_instance(models, args.model)
+model = get_instance(models, args.configs.MODEL.NAME,
+                     image_size=args.image_size,
+                     patch_size=args.patch_size,
+                     embed_dim=64,
+                     depth=3,
+                     heads=4,
+                     mlp_dim=32,
+                    #  dropout=0.
+                     )
 criterion=get_instance(losses,args.configs.Loss)
 if os.path.isfile(args.from_checkpoint):
     print(f"loadding the exit checkpoints {args.from_checkpoint}")
@@ -40,8 +48,8 @@ else:
     )
 
 # Load the datasets
-train_dataset=CustomDatset(args.path_tar,'train')
-val_dataset=CustomDatset(args.path_tar,'val')
+train_dataset=CustomDatset(args.path_tar,'train',args.image_size)
+val_dataset=CustomDatset(args.path_tar,'val',args.image_size)
 # Create the data loaders
 train_loader = DataLoader(train_dataset, 
                           batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,

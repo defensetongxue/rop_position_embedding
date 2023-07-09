@@ -21,7 +21,7 @@ _C.MODEL.PRETRAINED = ''
 # train
 _C.TRAIN = CN()
 
-_C.TRAIN.LR_FACTOR = 0.1
+_C.TRAIN.LR_FACTOR = 0.5
 _C.TRAIN.LR_STEP = [30, 50]
 _C.TRAIN.LR = 0.0001
 
@@ -61,15 +61,15 @@ def get_config():
                         help='Path to the source folder containing original datasets.')
     parser.add_argument('--generate_ridge', type=bool, default=False,
                         help='if generate the ridge cooridinate from json src.')
-    parser.add_argument('--generate_diffusion_mask', type=bool, default=True,
+    parser.add_argument('--generate_diffusion_mask', type=bool, default=False,
                         help='if generate the ridge cooridinate from json src.')
-    parser.add_argument('--generate_vessel', type=bool, default=True,
+    parser.add_argument('--generate_vessel', type=bool, default=False,
                         help='if generate the ridge cooridinate from json src.')
     
     # Cleansing
     parser.add_argument('--image_size', type=int, default=256,
                         help='position heatmap compress resize .')
-    parser.add_argument('--patch_size', type=int, default=16,
+    parser.add_argument('--patch_size', type=int, default=32,
                         help='position heatmap compress resize .')
     
     # Model

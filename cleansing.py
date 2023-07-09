@@ -16,7 +16,7 @@ def generate_ridge_diffusion(data_path,):
         new_data_list=[]
         for data in data_list:
             mask = generate_diffusion_heatmap(data['image_path'],data['ridge_coordinate'], factor=0.5, Gauss=False)
-            mask_save_name=data['image_name']/split('.')[0]+'.png'
+            mask_save_name=data['image_name'].split('.')[0]+'.png'
             mask_save_path=os.path.join(data_path,'ridge_diffusion',mask_save_name)
             Image.fromarray((mask * 255).astype(np.uint8)).save(mask_save_path)
             data['diffusion_mask_path']=mask_save_path
@@ -30,7 +30,7 @@ def generate_possion_map(data_path, image_size,patch_size):
     
     os.system(f"rm -rf {os.path.join(data_path,'position_map_gt')}/*")
 
-    splits=['train','val']
+    splits=['train','val','test']
     for split in splits:
         with open(os.path.join(data_path,'ridge',f'{split}.json'),'r') as f:
             data_list=json.load(f)
@@ -39,20 +39,21 @@ def generate_possion_map(data_path, image_size,patch_size):
         for  data in data_list:
             mask = Image.open(data['diffusion_mask_path'])
             mask=mask.resize((image_size,image_size))
+            mask=torch.from_numpy(np.array(mask, np.float32, copy=False))
             mask[mask!=0]=1
             position_save_path=os.path.join(data_path,'position_map_gt',data['image_name'])
             pos_heatmap=generate_position_map(mask,patch_size,save_path=position_save_path)
-            from utils_ import visual_position_map
-            visual_position_map(data['image_path'],pos_heatmap,'./tmp.jpg')
-            raise
-            vessel_path=os.path.join(data_path,'vessel_seg',data['image_name'].split('.')[0]+'.png')
+            # from utils_ import visual_position_map
+            # visual_position_map(data['image_path'],pos_heatmap,'./tmp.jpg')
+            # raise
+            vessel_path=os.path.join(data_path,'vessel_seg',data['image_name'])
             data.update({
                 'vessel_path':vessel_path,
                 'pos_heatmap':position_save_path
             })
             annotate.append(data)
         with open(os.path.join(data_path,'ridge',f'{split}.json'),'w') as f:
-            data_list=json.dump(annotate,f)
+            json.dump(annotate,f)
 
 
 def parse_json(input_data,label_class=0,image_dict="../autodl-tmp/images"):
@@ -175,7 +176,8 @@ if __name__=='__main__':
         print(f"generate ridge_coordinate in {os.path.join(args.path_tar,'ridge')}")
     if args.generate_diffusion_mask:
         generate_ridge_diffusion(args.path_tar)
+        print(f"generate ridge diffusion in {os.path.join(args.path_tar,'ridge_diffusion')}")
     if args.generate_vessel:
         generate_vessel_result(data_path=args.path_tar)
-
+        print(f"generate vessel segmentation in {os.path.join(args.path_tar,'vessel_seg')}")
     generate_possion_map(args.path_tar,args.image_size,args.patch_size)
