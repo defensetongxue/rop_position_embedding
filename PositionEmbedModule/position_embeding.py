@@ -1,7 +1,7 @@
 import os
 from .pos_embed_processer import PosEmbedProcesser
 from PIL import Image
-def generate_vessel_result(data_path='./data'):
+def generate_posEmbed_result(data_path='./data'):
     '''
     This funtion should be exited after the data cleasning. 
     └───data
@@ -44,8 +44,8 @@ def generate_vessel_result(data_path='./data'):
     img_list=os.listdir(img_dir)
     
     for image_name in img_list:
-        img=Image.open(os.path.join(img_dir,image_name))
-        processer(img,save_path=os.path.join(save_dir,image_name))
+        img=Image.open(os.path.join(img_dir,image_name)).convert('RGB')
+        processer(img,save_path=os.path.join(save_dir,image_name.split('.')[0]+'.pt'))
 
     
         
