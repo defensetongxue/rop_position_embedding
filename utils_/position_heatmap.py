@@ -34,7 +34,7 @@ def visual_position_map(image_path, position_embedding, save_path=None):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)  # convert to 4-channel image
 
     # Resize position_embedding to match img shape
-    heatmap = cv2.resize(position_embedding, (img.shape[1], img.shape[0]))
+    heatmap = cv2.resize(position_embedding, (img.shape[1], img.shape[0]),interpolation=cv2.INTER_NEAREST)
 
     # Apply color map and convert to 4-channel image
     heatmap = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
