@@ -34,7 +34,7 @@ def generate_posEmbed_result(data_path='./data'):
     os.makedirs(save_dir,exist_ok=True)
     os.system(f'rm -rf {save_dir}/*')
     # Init processer
-    processer=PosEmbedProcesser(model_name='transUnet',
+    processer=PosEmbedProcesser(model_name='ViT',
                                 vessel_resize=256,
                                 image_orignal_size=(1200,1600),#todo
                                 patch_size=32)

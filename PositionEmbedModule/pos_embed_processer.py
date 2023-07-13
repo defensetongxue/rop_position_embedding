@@ -19,7 +19,7 @@ def get_instance(module, class_name, *args, **kwargs):
 class PosEmbedProcesser():
     def __init__(self, model_name,
                  vessel_resize,image_orignal_size,patch_size):
-        self.model = get_instance(models, 'ViT',
+        self.model = get_instance(models, model_name,
                     patch_size=patch_size,
                     image_size=vessel_resize,
                     embed_dim=64,
