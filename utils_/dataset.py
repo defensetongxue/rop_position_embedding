@@ -9,13 +9,13 @@ import numpy as np
 
 class rop_posembed_dataset(Dataset):
     def __init__(self, data_path, split,split_name,image_resize):
-        with open(os.path.join(data_path, 'split',f'{split_name}.json'), 'r') as f:
+        with open(os.path.join( './split',f'{split_name}.json'), 'r') as f:
             split_list=json.load(f)
         with open(os.path.join(data_path, 'annotations.json'), 'r') as f:
             self.data_list=json.load(f)
         self.split_list=split_list[split]
         self.split=split
-        self.resize=transforms.Resize((image_resize,image_resize))
+        self.resize=transforms.Resize((image_resize))
         self.transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomVerticalFlip(p=0.5),

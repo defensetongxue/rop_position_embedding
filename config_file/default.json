@@ -5,6 +5,7 @@
     "sigma":1.5,
     "split_name":"mini",
     "image_resize": [256,256],
+    "patch_size":32,
     "model": {
         "image_resize": [256,256],
         "patch_size":32,
@@ -16,9 +17,8 @@
         "mlp_dim":32,
         "dropout":0.3,
         "location_r":0.7,
-        "loss_func":"MSELoss",
+        "loss_func":"BCELoss",
         "in_channels": 3,
-        "num_classes":3,
         "official_model_save":"./experiments"
     },
     "lr_strategy":{

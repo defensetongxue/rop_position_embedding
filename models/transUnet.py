@@ -8,8 +8,9 @@ import torch.nn as nn
 class ViT(nn.Module):
     def __init__(self, configs):
         super().__init__()
-        assert configs["image_resize"] % configs["patch_size"] == 0, 'Image dimensions must be divisible by the patch size.'
-        self.patch_length = int(configs["image_resize"]/configs["patch_size"])
+        assert configs["image_resize"][0]==configs["image_resize"][1]
+        assert configs["image_resize"][0] % configs["patch_size"] == 0, 'Image dimensions must be divisible by the patch size.'
+        self.patch_length = int(configs["image_resize"][0]/configs["patch_size"])
         self.patch_size = configs["patch_size"]
         self.patch_embedding = PatchEmbedding(in_channels=configs["in_channels"],
                                               patch_size=configs["patch_size"],

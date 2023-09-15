@@ -41,7 +41,7 @@ visual_dir = os.path.join(args.result_path, 'visual')
 os.makedirs(visual_dir, exist_ok=True)
 os.makedirs(os.path.join(args.result_path,'visual_points'),exist_ok=True)
 # Test the model and save visualizations
-with open(os.path.join(data_path,'ridge','test.json'),'r') as f:
+with open(os.path.join(args.data_path,'ridge','test.json'),'r') as f:
     test_data=json.load(f)[:TEST_CNT]
 img_transforms=transforms.Compose(
     [transforms.Resize((args.image_size,args.image_size)),
@@ -58,11 +58,6 @@ with torch.no_grad():
         output_img=torch.sigmoid(output_img)
         print(data['image_name'],output_img.max())
         visual_position_map(data['image_path'],output_img.numpy(),os.path.join(visual_dir,data['image_name']))
-
-        # raise
-        # gt = Image.open(data['pos_heatmap'])
-        # gt = torch.from_numpy(np.array(gt, np.float32, copy=False)/255)
-        # visual_position_map(data['image_path'],gt.numpy(),os.path.join(visual_dir,data['image_name']))
 
 end=time.time()
 print(f"Finished testing. Time cost {(end-begin)/100:.4f}")

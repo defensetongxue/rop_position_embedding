@@ -18,7 +18,7 @@ os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model = get_instance(models, args.model,args.configs)
+model = get_instance(models, args.model,args.configs['model'])
 criterion=get_instance(losses,args.configs['model']['loss_func'])
 if os.path.isfile(args.from_checkpoint):
     print(f"loadding the exit checkpoints {args.from_checkpoint}")
@@ -31,16 +31,16 @@ lr_scheduler=get_lr_scheduler(optimizer,args.configs['lr_strategy'])
 last_epoch = args.configs['train']['begin_epoch']
 
 # Load the datasets
-train_dataset=CustomDatset(args.path_tar,'train',args.image_size)
-val_dataset=CustomDatset(args.path_tar,'val',args.image_size)
+train_dataset=CustomDatset(args.data_path,'train',split_name=args.split_name,image_resize=args.configs['image_resize'])
+val_dataset=CustomDatset(args.data_path,'val',split_name=args.split_name,image_resize=args.configs['image_resize'])
 # Create the data loaders
 train_loader = DataLoader(train_dataset, 
                           batch_size=args.configs['batch_size'],
                           shuffle=True, num_workers=args.configs['num_works'])
 val_loader = DataLoader(val_dataset,
-                        batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
-                        shuffle=False, num_workers=args.configs.WORKERS)
-print(f"There is {args.configs.TRAIN.BATCH_SIZE_PER_GPU} patch size")
+                        batch_size=args.configs['batch_size'],
+                        shuffle=False, num_workers=args.configs['num_works'])
+print("There is {} patch size".format(args.configs['batch_size']))
 print(f"Train: {len(train_loader)}, Val: {len(val_loader)}")
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -50,13 +50,11 @@ print(f"using {device} for training")
 
 early_stop_counter = 0
 best_val_loss = float('inf')
-total_epoches=args.configs.TRAIN.END_EPOCH
+total_epoches=args.configs['train']['end_epoch']
 # Training and validation loop
 for epoch in range(last_epoch,total_epoches):
 
     train_loss = train_epoch(model, optimizer, train_loader, criterion, device)
-    lr_scheduler.step()
-    
     val_loss = val_epoch(model, val_loader, criterion, device)
     print(f"Epoch {epoch + 1}/{total_epoches}," 
           f"Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}," 
@@ -76,6 +74,6 @@ for epoch in range(last_epoch,total_epoches):
         print(f"Model saved as {args.save_name}")
     else:
         early_stop_counter += 1
-        if early_stop_counter >= args.configs.TRAIN.EARLY_STOP:
+        if early_stop_counter >= args.configs['train']['early_stop']:
             print("Early stopping triggered")
             break

@@ -8,12 +8,7 @@ def get_config():
                         help='Path to the target folder to store the processed datasets.')
     parser.add_argument('--split_name', type=str, default='mini',
                         help='Path to the target folder to store the processed datasets.')
-    # Cleansing
-    parser.add_argument('--image_size', type=int, default=256,
-                        help='position heatmap compress resize .')
-    parser.add_argument('--patch_size', type=int, default=32,
-                        help='position heatmap compress resize .')
-    
+
     # Model
     parser.add_argument('--model', type=str, default='vit',
                         help='Name of the model architecture to be used for training.')
