@@ -2,12 +2,10 @@ import json
 import os
 import torch
 from config import get_config
-import numpy as np
 from torchvision import transforms
-from utils_ import get_instance,visual_position_map,visual_points
+from utils_ import get_instance,visual_position_map
 import models
 from PIL import Image
-from scipy.ndimage import zoom
 # Parse arguments
 TEST_CNT=100
 import time
@@ -23,8 +21,8 @@ model = get_instance(models, args.model,args.configs['model'])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 model.load_state_dict(
-    torch.load(args.save_name))
-print(f"load the checkpoint in {args.save_name}")
+    torch.load(f"{args.split_name}_{args.save_name}"))
+print(f"load the checkpoint in {args.split_name}_{args.save_name}")
 model.eval()
 # Create the visualizations directory if it doesn't exist
 

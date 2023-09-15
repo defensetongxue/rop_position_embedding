@@ -70,7 +70,7 @@ for epoch in range(last_epoch,total_epoches):
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         early_stop_counter = 0
-        torch.save(model.state_dict(),(os.path.join(args.save_name)))
+        torch.save(model.state_dict(),f"{args.split_name}_{args.save_name}")
         print(f"Model saved as {args.save_name}")
     else:
         early_stop_counter += 1
