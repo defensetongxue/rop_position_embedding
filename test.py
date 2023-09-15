@@ -14,21 +14,12 @@ import time
 args = get_config()
 
 # Init the result file to store the pytorch model and other mid-result
-data_path=args.path_tar
 result_path = args.result_path
 os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model = get_instance(models, args.configs.MODEL.NAME,
-                     image_size=args.image_size,
-                     patch_size=args.patch_size,
-                     embed_dim=64,
-                     depth=3,
-                     heads=4,
-                     mlp_dim=32,
-                    #  dropout=0.
-                     )
+model = get_instance(models, args.model,args.configs['model'])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 model.load_state_dict(
@@ -41,23 +32,25 @@ visual_dir = os.path.join(args.result_path, 'visual')
 os.makedirs(visual_dir, exist_ok=True)
 os.makedirs(os.path.join(args.result_path,'visual_points'),exist_ok=True)
 # Test the model and save visualizations
-with open(os.path.join(args.data_path,'ridge','test.json'),'r') as f:
-    test_data=json.load(f)[:TEST_CNT]
+with open(os.path.join(args.data_path,'split',f'{args.split_name}.json'),'r') as f:
+    test_split=json.load(f)['test'][:TEST_CNT]
+with open(os.path.join(args.data_path,'annotations.json'),'r') as f:
+    data_dict=json.load(f)
 img_transforms=transforms.Compose(
-    [transforms.Resize((args.image_size,args.image_size)),
+    [transforms.Resize((args.configs['image_resize'])),
                 transforms.ToTensor()])
 begin=time.time()
 with torch.no_grad():
-    for data in test_data:
+    for image_name in test_split:
+        data = data_dict[image_name]
         img_path=data['vessel_path']
-        img_name=data['image_name']
         img=Image.open(img_path).convert('RGB')
         img=img_transforms(img).unsqueeze(0)
 
         output_img = model(img.to(device)).cpu().squeeze()
         output_img=torch.sigmoid(output_img)
-        print(data['image_name'],output_img.max())
-        visual_position_map(data['image_path'],output_img.numpy(),os.path.join(visual_dir,data['image_name']))
+        print(image_name,output_img.max())
+        visual_position_map(data['image_path'],output_img.numpy(),os.path.join(visual_dir,image_name))
 
 end=time.time()
 print(f"Finished testing. Time cost {(end-begin)/100:.4f}")
