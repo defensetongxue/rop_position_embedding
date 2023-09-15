@@ -16,19 +16,8 @@ def generate_position_map(ridge_mask,patch_size,save_path=None):
     heatmap=heatmap.numpy()
     if save_path:
         Image.fromarray((heatmap * 255).astype(np.uint8)).save(save_path)
-        # torch.save(torch.tensor(heatmap), save_path)
     return heatmap
 
-# def visual_position_map(image_path, position_embedding, save_path=None):
-#     img = cv2.imread(image_path)
-#     print(position_embedding.shape)
-#     heatmap = cv2.resize(position_embedding, (img.shape[1], img.shape[0]))
-#     print(np.max(position_embedding),np.min(position_embedding))
-#     heatmap = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
-#     output_image = cv2.addWeighted(img, 0.5, heatmap, 0.5, 0)
-#     if save_path:
-#         cv2.imwrite(save_path, output_image)
-#     return output_image
 def visual_position_map(image_path, position_embedding, save_path=None):
     img = cv2.imread(image_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)  # convert to 4-channel image
