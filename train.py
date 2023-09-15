@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from config import get_config
-from utils_ import get_instance, train_epoch, val_epoch,get_optimizer,losses
+from utils_ import get_instance, train_epoch, val_epoch,get_optimizer,losses,get_lr_scheduler
 from utils_ import rop_posembed_dataset as CustomDatset
 import models
 import os
@@ -18,16 +18,8 @@ os.makedirs(result_path,exist_ok=True)
 print(f"the mid-result and the pytorch model will be stored in {result_path}")
 
 # Create the model and criterion
-model = get_instance(models, args.configs.MODEL.NAME,
-                     image_size=args.image_size,
-                     patch_size=args.patch_size,
-                     embed_dim=64,
-                     depth=3,
-                     heads=4,
-                     mlp_dim=32,
-                    #  dropout=0.
-                     )
-criterion=get_instance(losses,args.configs.Loss)
+model = get_instance(models, args.model,args.configs)
+criterion=get_instance(losses,args.configs['model']['loss_func'])
 if os.path.isfile(args.from_checkpoint):
     print(f"loadding the exit checkpoints {args.from_checkpoint}")
     model.load_state_dict(
@@ -35,25 +27,16 @@ if os.path.isfile(args.from_checkpoint):
 model.train()
 # Creatr optimizer
 optimizer = get_optimizer(args.configs, model)
-last_epoch = args.configs.TRAIN.BEGIN_EPOCH
-if isinstance(args.configs.TRAIN.LR_STEP, list):
-    lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, args.configs.TRAIN.LR_STEP,
-        args.configs.TRAIN.LR_FACTOR, last_epoch-1
-    )
-else:
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(
-        optimizer, args.configs.TRAIN.LR_STEP,
-        args.configs.TRAIN.LR_FACTOR, last_epoch-1
-    )
+lr_scheduler=get_lr_scheduler(optimizer,args.configs['lr_strategy'])
+last_epoch = args.configs['train']['begin_epoch']
 
 # Load the datasets
 train_dataset=CustomDatset(args.path_tar,'train',args.image_size)
 val_dataset=CustomDatset(args.path_tar,'val',args.image_size)
 # Create the data loaders
 train_loader = DataLoader(train_dataset, 
-                          batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
-                          shuffle=True, num_workers=args.configs.WORKERS)
+                          batch_size=args.configs['batch_size'],
+                          shuffle=True, num_workers=args.configs['num_works'])
 val_loader = DataLoader(val_dataset,
                         batch_size=args.configs.TRAIN.BATCH_SIZE_PER_GPU,
                         shuffle=False, num_workers=args.configs.WORKERS)
@@ -78,6 +61,13 @@ for epoch in range(last_epoch,total_epoches):
     print(f"Epoch {epoch + 1}/{total_epoches}," 
           f"Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}," 
             f" Lr: {optimizer.state_dict()['param_groups'][0]['lr']:.6f}" )
+    # Update the learning rate if using ReduceLROnPlateau or CosineAnnealingLR
+    if lr_scheduler is not None:
+        if args.configs['lr_strategy']['method'] == 'reduce_plateau':
+            lr_scheduler.step(val_loss)
+        elif args.configs['lr_strategy']['method'] == 'cosine_annealing':
+            lr_scheduler.step()
+
     # Early stopping
     if val_loss < best_val_loss:
         best_val_loss = val_loss

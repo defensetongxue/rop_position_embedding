@@ -1,1 +1,1 @@
-from .transUnet import ViT
+from .transUnet import vit

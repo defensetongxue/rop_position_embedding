@@ -15,7 +15,7 @@ def get_config():
                         help='position heatmap compress resize .')
     
     # Model
-    parser.add_argument('--model', type=str, default='FR_UNet',
+    parser.add_argument('--model', type=str, default='vit',
                         help='Name of the model architecture to be used for training.')
     
     # train and test
