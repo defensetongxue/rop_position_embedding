@@ -20,7 +20,7 @@ def generate_possion_map(data_path, image_resize,patch_size):
             continue
         data=data_list[image_name]
         mask = Image.open(data['ridge_diffusion_path'])
-        mask=mask.resize((image_resize,image_resize))
+        mask=mask.resize(image_resize)
         mask=torch.from_numpy(np.array(mask, np.float32, copy=False))
         mask[mask!=0]=1
         position_save_path=os.path.join(data_path,'position_map_gt',image_name)
@@ -50,5 +50,5 @@ if __name__=='__main__':
         from utils_ import generate_ridge_diffusion
         generate_ridge_diffusion(args.data_path)
     
-    generate_possion_map(args.data_path,args.image_size,args.patch_size)
+    generate_possion_map(args.data_path,args.configs["image_resize"],args.configs["patch_size"])
     generate_pos_embed_split(args.data_path,args.split_name)
