@@ -6,7 +6,7 @@ def get_config():
                         help='Path to the target folder to store the processed datasets.')
     parser.add_argument('--generate_ridge_diffusion', type=bool, default=False,
                         help='Path to the target folder to store the processed datasets.')
-    parser.add_argument('--split_name', type=str, default='mini',
+    parser.add_argument('--split_name', type=str, default='1',
                         help='Path to the target folder to store the processed datasets.')
 
     # Model

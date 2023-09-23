@@ -51,4 +51,4 @@ if __name__=='__main__':
         generate_ridge_diffusion(args.data_path)
     
     generate_possion_map(args.data_path,args.configs["image_resize"],args.configs["patch_size"])
-    generate_pos_embed_split(args.data_path,args.split_name)
+    # generate_pos_embed_split(args.data_path,args.split_name)

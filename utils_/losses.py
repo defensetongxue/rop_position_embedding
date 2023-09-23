@@ -29,7 +29,12 @@ class BCELoss(nn.Module):
     def forward(self, prediction, targets):
         return self.bce_loss(prediction, targets)
 
-
+class MSELoss(nn.Module):
+    def __init__(self):
+        super(MSELoss,self).__init__()
+        self.loss_func=nn.MSELoss()
+    def forward(self, prediction, targets):
+        return self.loss_func(prediction, targets)
 class CELoss(nn.Module):
     def __init__(self, weight=[1, 1], ignore_index=-100, reduction='mean'):
         super(CELoss, self).__init__()
