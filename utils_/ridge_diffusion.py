@@ -47,8 +47,10 @@ def generate_diffusion_heatmap(image_path,points,factor=0.5,Gauss=False):
         new_points.append([int(x*factor),int(y*factor)])
     points=np.array(new_points)
 
-    heatmap = generate_heatmap(heatmap,img_tensor,points)
+    heatmap = generate_heatmap(heatmap,img_tensor,points,image_path)
     if Gauss:
+        # as we are using bce loss as loss function, no 
+        # gauss map is needed
         Gauss_heatmap=gaussian_filter(heatmap,3)
         heatmap=np.where(heatmap>Gauss_heatmap,heatmap,Gauss_heatmap)
     mask=heatmap2mask(heatmap,int(1/factor))
@@ -103,10 +105,10 @@ def imge_tensor_compress(img_path,factor):
     img=img.squeeze()
     return img
 
-def generate_heatmap(heatmap,img_tensor, points):
+def generate_heatmap(heatmap,img_tensor, points,image_path):
     points=generate_point_sequence(points)
     for i in range(points.shape[0]-1):
-        heatmap=diffusion(heatmap,img_tensor,points[i],points[i+1])
+        heatmap=diffusion(heatmap,img_tensor,points[i],points[i+1],image_path)
 
     return heatmap
 
@@ -120,7 +122,7 @@ def get_similarity(img_tensor,p0,p1):
     return 1-((img_tensor[p0[1],p0[0]]-img_tensor[p1[1],p1[0]])**2)
 
 
-def diffusion(heatmap,img_tensor,p0,p1):
+def diffusion(heatmap,img_tensor,p0,p1,image_path):
     heatmap[p0[1],p0[0]]=1
     heatmap[p1[1],p1[0]]=1
     px=p0
@@ -141,6 +143,7 @@ def diffusion(heatmap,img_tensor,p0,p1):
                     max_simi=simi
                     rem=[i,j]
         if len(rem)==0:
+            print(image_path)
             return heatmap
         px=[px[0]+rem[0],px[1]+rem[1]]
         now_distance=get_distance(px,p1)

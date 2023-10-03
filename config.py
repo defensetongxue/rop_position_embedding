@@ -4,7 +4,7 @@ def get_config():
     # cleansing
     parser.add_argument('--data_path', type=str, default='../autodl-tmp/dataset_ROP',
                         help='Path to the target folder to store the processed datasets.')
-    parser.add_argument('--generate_ridge_diffusion', type=bool, default=False,
+    parser.add_argument('--generate_ridge_diffusion', type=bool, default=True,
                         help='Path to the target folder to store the processed datasets.')
     parser.add_argument('--split_name', type=str, default='1',
                         help='Path to the target folder to store the processed datasets.')
