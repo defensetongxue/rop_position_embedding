@@ -17,13 +17,20 @@ class ResNet(nn.Module):
                                               embed_dim=configs["embed_dim"])
         self.dropout = nn.Dropout(configs["emb_dropout"])
 
-        self.resnet=blackbone(embed_dim=configs["embed_dim"],
+        self.backbone=blackbone(embed_dim=configs["embed_dim"],
                            depth=configs["depth"])
-
+        
+        self.classifier=nn.Sequential(
+            nn.BatchNorm2d(configs["embed_dim"]),
+            nn.Conv2d(configs["embed_dim"],32,1),
+            nn.Conv2d(32,1,1)
+        )
+        
     def forward(self, img):
         x = self.patch_embedding(img)
         x = self.dropout(x)
-        x= self.resnet(x)
+        x= self.backbone(x)
+        x=self.classifier(x)
         return x.squeeze(1)
 
 
@@ -43,16 +50,13 @@ class blackbone(nn.Module):
     def __init__(self, embed_dim=64, depth=3):
         super().__init__()
         layers=[]
-        for _ in range(depth-1):
+        for _ in range(depth):
             layers.append(conv(
                 embed_dim,embed_dim,0.2
             ))
-        layers.append(nn.BatchNorm2d(embed_dim))
         self.convlayer=nn.Sequential(*layers)
-        self.classifier=nn.Conv2d(embed_dim,1,1)
     def forward(self,x):
         x=self.convlayer(x)
-        x=self.classifier(x)
         return x
 class conv(nn.Module):
     def __init__(self, in_c, out_c, dp=0):

@@ -9,10 +9,6 @@ def get_config():
     parser.add_argument('--split_name', type=str, default='1',
                         help='Path to the target folder to store the processed datasets.')
 
-    # Model
-    parser.add_argument('--model', type=str, default='vit',
-                        help='Name of the model architecture to be used for training.')
-    
     # train and test
     parser.add_argument('--save_dir', type=str, default="./checkpoints",
                         help='Name of the file to save the best model during training.')
