@@ -23,19 +23,17 @@ def visual_position_map(image_path, position_embedding, save_path=None):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)  # convert to 4-channel image
 
     # Resize position_embedding to match img shape
-    heatmap = cv2.resize(position_embedding, (img.shape[1], img.shape[0]),interpolation=cv2.INTER_NEAREST)
+    heatmap = cv2.resize(position_embedding, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
 
     # Apply color map and convert to 4-channel image
-    heatmap = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
-    heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2BGRA)
+    heatmap_colored = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
+    heatmap_colored = cv2.cvtColor(heatmap_colored, cv2.COLOR_BGR2BGRA)
 
-    # Add an alpha channel to the heatmap
-    # Alpha channel controls the transparency of the image.
-    # Lower pixel values will result in more transparency.
-    heatmap[:, :, 3] = 127  # Set alpha channel
+    # Modify the alpha channel based on the heatmap values
+    heatmap_colored[:, :, 3] = np.where(heatmap > 0.01, 127, 0)  # You can adjust the threshold (0.01) if needed
 
     # Overlay the heatmap on the image using alpha channel for transparency
-    output_image = cv2.addWeighted(img, 1.0, heatmap, 0.5, 0)
+    output_image = cv2.addWeighted(img, 1.0, heatmap_colored, 0.5, 0)
 
     if save_path:
         cv2.imwrite(save_path, output_image)

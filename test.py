@@ -41,12 +41,13 @@ begin=time.time()
 with torch.no_grad():
     for image_name in test_split:
         data = data_dict[image_name]
-        img_path=data['vessel_path']
+        img_path=data['vessel_path'][:-3]+'png'
         img=Image.open(img_path).convert('RGB')
         img=img_transforms(img).unsqueeze(0)
 
         output_img = model(img.to(device)).cpu().squeeze()
         output_img=torch.sigmoid(output_img)
+        output_img[output_img<0.4]=0
         print(image_name,output_img.max())
         visual_position_map(data['image_path'],output_img.numpy(),os.path.join(visual_dir,image_name))
 

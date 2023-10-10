@@ -25,7 +25,7 @@ class rop_posembed_dataset(Dataset):
         image_name = self.split_list[idx]
         data=self.data_list[image_name]
         # Read the image and mask
-        img = Image.open(data['vessel_path']).convert('RGB')
+        img = Image.open(data['vessel_path'][:-3]+'png').convert('RGB')
         gt = Image.open(data['pos_embed_gt_path'])
         img=self.resize(img)
         
