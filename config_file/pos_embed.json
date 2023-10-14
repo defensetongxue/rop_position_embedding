@@ -5,11 +5,11 @@
     "sigma":1.5,
     "split_name":"mini",
     "image_resize": [256,256],
-    "patch_size":16,
+    "patch_size":8,
     "model": {
         "name":"resnet",
         "image_resize": [256,256],
-        "patch_size":16,
+        "patch_size":8,
         "depth":3,
         "embed_dim":64,
         "heads":4,
