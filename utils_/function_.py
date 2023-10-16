@@ -1,4 +1,4 @@
-import torch
+import torch,math
 from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 
@@ -10,12 +10,13 @@ def to_device(x, device):
     else:
         return x.to(device)
 
-def train_epoch(model, optimizer, train_loader, loss_function, device):
+def train_epoch(model, optimizer, train_loader, loss_function, device,lr_scheduler,epoch):
     model.train()
     running_loss = 0.0
-
-    for inputs, targets, meta in train_loader:
+    batch_length=len(train_loader)
+    for data_iter_step,(inputs, targets, meta) in enumerate(train_loader):
         # Moving inputs and targets to the correct device
+        lr_scheduler.adjust_learning_rate(optimizer,epoch+(data_iter_step/batch_length))
         inputs = to_device(inputs, device)
         targets = to_device(targets, device)
 
@@ -33,6 +34,7 @@ def train_epoch(model, optimizer, train_loader, loss_function, device):
         running_loss += loss.item()
     
     return running_loss / len(train_loader)
+
 
 def val_epoch(model, val_loader, loss_function, device):
     model.eval()
@@ -82,21 +84,22 @@ def get_optimizer(cfg, model):
     else:
         raise
     return optimizer
-def get_lr_scheduler(optimizer, cfg):
-    if cfg['method'] == 'reduce_plateau':
-        lr_scheduler = ReduceLROnPlateau(
-            optimizer,
-            mode='min',
-            patience=cfg['reduce_plateau_patience'],
-            factor=cfg['reduce_plateau_factor'],
-            cooldown=cfg['cooldown'],
-            verbose=False
-        )
-    elif cfg['method'] == 'cosine_annealing':
-        lr_scheduler = CosineAnnealingLR(optimizer, T_max=cfg['cosine_annealing_T_max'])
-    elif cfg['method'] == 'constant':
-        lr_scheduler = None  # No learning rate scheduling for constant LR
-    else:
-        raise ValueError("Invalid learning rate scheduling method")
-    
-    return lr_scheduler
+class lr_sche():
+    def __init__(self,config):
+        self.warmup_epochs=config["warmup_epochs"]
+        self.lr=config["lr"]
+        self.min_lr=config["min_lr"]
+        self.epochs=config['epochs']
+    def adjust_learning_rate(self,optimizer, epoch):
+        """Decay the learning rate with half-cycle cosine after warmup"""
+        if epoch < self.warmup_epochs:
+            lr = self.lr * epoch / self.warmup_epochs
+        else:
+            lr = self.min_lr + (self.lr  - self.min_lr) * 0.5 * \
+                (1. + math.cos(math.pi * (epoch - self.warmup_epochs) / (self.epochs - self.warmup_epochs)))
+        for param_group in optimizer.param_groups:
+            if "lr_scale" in param_group:
+                param_group["lr"] = lr * param_group["lr_scale"]
+            else:
+                param_group["lr"] = lr
+        return lr

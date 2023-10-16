@@ -7,7 +7,7 @@ import numpy as np
 import sys 
 sys.path.append('..')
 
-def generate_possion_map(data_path, image_resize,patch_size):
+def generate_possion_map(data_path, image_resize,patch_size,diffusion_size=4):
     # Generate path_image folder
     os.makedirs(os.path.join(data_path,'position_map_gt'),exist_ok=True)
     
@@ -15,20 +15,19 @@ def generate_possion_map(data_path, image_resize,patch_size):
 
     with open(os.path.join(data_path,'annotations.json'),'r') as f:
         data_list=json.load(f)
+    patch_length=int(image_resize[0]/patch_size)
     for  image_name in data_list:
         if 'ridge' not in data_list[image_name]:
             continue
         data=data_list[image_name]
-        mask = Image.open(data['ridge_diffusion_path'])
-        mask=mask.resize(image_resize)
-        mask=torch.from_numpy(np.array(mask, np.float32, copy=False))
-        mask[mask!=0]=1
+        mask_path = data['ridge_diffusion_path']
         position_save_path=os.path.join(data_path,'position_map_gt',image_name)
-        generate_position_map(mask,patch_size,save_path=position_save_path)
+        generate_position_map(mask_path,patch_length,diffusion_size,save_path=position_save_path)
         data['pos_embed_gt_path']=position_save_path
         
     with open(os.path.join(data_path,'annotations.json'),'w') as f:
         json.dump(data_list,f)
+
 def generate_pos_embed_split(data_path,split_name):
     os.makedirs('./split',exist_ok=True)
     with open(os.path.join(data_path,'split',f'{split_name}.json'),'r') as f:
@@ -50,5 +49,6 @@ if __name__=='__main__':
         from utils_ import generate_ridge_diffusion
         generate_ridge_diffusion(args.data_path)
     
-    generate_possion_map(args.data_path,args.configs["image_resize"],args.configs["patch_size"])
+    generate_possion_map(args.data_path,args.configs["image_resize"],args.configs["patch_size"],
+                         args.configs["diffusion_size"])
     generate_pos_embed_split(args.data_path,args.split_name)

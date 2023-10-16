@@ -1,8 +1,8 @@
 {
     "num_works": 12,
     "batch_size":64,
-    "diffusion_size":4,
     "heatmap_rate":0.25,
+    "diffusion_size":4,
     "sigma":1.5,
     "split_name":"mini",
     "image_resize": [256,256],
@@ -11,7 +11,7 @@
         "name":"resnet",
         "image_resize": [256,256],
         "patch_size":8,
-        "depth":3,
+        "depth":5,
         "embed_dim":64,
         "heads":4,
         "emb_dropout":0.3,

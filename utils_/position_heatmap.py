@@ -1,22 +1,22 @@
-import torch
 import numpy as np
-import torch.nn.functional as F
-
 import cv2
 from PIL import Image
-def generate_position_map(ridge_mask,patch_size,save_path=None):
-    w,h=ridge_mask.shape
-    assert w==h
-    assert w%patch_size==0
-    kernel = torch.full((1,1,patch_size,patch_size),1/(patch_size*patch_size))
-    heatmap_original=F.conv2d(ridge_mask[None,None,:,:],kernel,stride=patch_size)
-    heatmap_original=heatmap_original[0,0]
-    heatmap_norm = (heatmap_original - heatmap_original.min()) / (heatmap_original.max() - heatmap_original.min()) * 0.8 + 0.2
-    heatmap=torch.where(heatmap_original>0,heatmap_norm,heatmap_original)
-    heatmap=heatmap.numpy()
+from scipy.signal import convolve2d
+def generate_position_map(ridge_mask_path,patch_length,diffusion_size=4,save_path=None):
+    ridge_mask=Image.open(ridge_mask_path)
+    ridge_mask=ridge_mask.resize(size=(patch_length,patch_length),  resample=Image.BILINEAR)
+    ridge_mask=np.array(ridge_mask)
+    
+    kernel_size=2*diffusion_size+1
+    kernel = np.ones((kernel_size, kernel_size), dtype=np.float32)
+    
+    # Convolve the inputs with the kernel
+    ridge_mask = convolve2d(ridge_mask, kernel, mode='same', boundary='symm')
+    
+    ridge_mask[ridge_mask>0]=1
     if save_path:
-        Image.fromarray((heatmap * 255).astype(np.uint8)).save(save_path)
-    return heatmap
+        Image.fromarray((ridge_mask * 255).astype(np.uint8)).save(save_path)
+    return ridge_mask
 
 def visual_position_map(image_path, position_embedding, save_path=None):
     img = cv2.imread(image_path)

@@ -26,9 +26,8 @@ print("load the checkpoint in {}".format(os.path.join(args.save_dir,f"{args.spli
 model.eval()
 # Create the visualizations directory if it doesn't exist
 
-visual_dir = os.path.join(args.result_path, 'visual')
+visual_dir = os.path.join(args.result_path, 'visual',str(args.configs['model']['depth']))
 os.makedirs(visual_dir, exist_ok=True)
-os.makedirs(os.path.join(args.result_path,'visual_points'),exist_ok=True)
 # Test the model and save visualizations
 with open(os.path.join(args.data_path,'split',f'{args.split_name}.json'),'r') as f:
     test_split=json.load(f)['test'][:TEST_CNT]
@@ -47,7 +46,7 @@ with torch.no_grad():
 
         output_img = model(img.to(device)).cpu().squeeze()
         output_img=torch.sigmoid(output_img)
-        output_img[output_img<0.4]=0
+        # output_img[output_img<0.4]=0
         print(image_name,output_img.max())
         visual_position_map(data['image_path'],output_img.numpy(),os.path.join(visual_dir,image_name))
 
