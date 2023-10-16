@@ -48,7 +48,7 @@ with torch.no_grad():
         output_img=torch.sigmoid(output_img)
         # output_img[output_img<0.4]=0
         print(image_name,output_img.max())
-        visual_position_map(data['image_path'],output_img.numpy(),os.path.join(visual_dir,image_name))
+        visual_position_map(img_path,output_img.numpy(),os.path.join(visual_dir,image_name))
 
 end=time.time()
 print(f"Finished testing. Time cost {(end-begin)/100:.4f}")
