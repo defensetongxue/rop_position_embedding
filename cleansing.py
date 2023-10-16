@@ -16,13 +16,16 @@ def generate_possion_map(data_path, image_resize,patch_size,diffusion_size=4):
     with open(os.path.join(data_path,'annotations.json'),'r') as f:
         data_list=json.load(f)
     patch_length=int(image_resize[0]/patch_size)
+    mask=Image.open('./mask.png').resize((patch_length,patch_length))
+    mask=np.array(mask)
+    mask[mask>0]=1
     for  image_name in data_list:
         if 'ridge' not in data_list[image_name]:
             continue
         data=data_list[image_name]
-        mask_path = data['ridge_diffusion_path']
+        ridge_path = data['ridge_diffusion_path']
         position_save_path=os.path.join(data_path,'position_map_gt',image_name)
-        generate_position_map(mask_path,patch_length,diffusion_size,save_path=position_save_path)
+        generate_position_map(ridge_path,patch_length,mask,diffusion_size,save_path=position_save_path)
         data['pos_embed_gt_path']=position_save_path
         
     with open(os.path.join(data_path,'annotations.json'),'w') as f:
